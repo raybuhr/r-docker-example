@@ -19,4 +19,26 @@ The repo has two R scripts, *get_twitter_logo.R* and *install_libraries.R*.
 
     - _Note:_ I use environment variables to store the Twitter API credentials. To do this, I used a `.Renviron` file stored in this project directory (repo, folder). I added `.Renviron` to the `.gitignore` file in this repo so that hooligans won't abuse my API account. You should probably also do that.
 
+Once you have created your R script to install the necessary R libraries and your script to perform some meaningful work (i.e. not just print to stdout), you may need to update the Dockerfile. For example, the R libraries I used, `httr` and `jsonlite`, depend on several lower level libraries written in C and C++, such as `libssl-dev`. Be sure to include _everything_ your scripts need in the Dockerfile so that your code can actually run.
 
+With a complete Dockerfile and R scripts to execute your code, you need to build a Docker image based on your Dockerfile. (Note: you must have docker installed to do this.) Run the command:
+
+```shell
+docker build -t [insert clever name for your image here] /path/to/repo/
+```
+
+_Note:_ if you are already have the repo set to your current working directory, then you can substitute `.` to mean "in this directory". 
+
+Building the Docker image could take a while depending on what base image you use and what libraries you need to install. Ideally we would use a small image as the base, but here I used `r-base:latest` as my starting point, which just happens to be built on top of the `debian:testing` image. In other words, not the smallest starting point, but it has R installed by default.
+
+Once the build command finishes, you can run your script with the command:
+
+```shell
+docker run [use the clever name from before here]
+```
+
+and whatever you told the Dockerfile in the last section, e.g. `CMD ["Rscript", "my_cool_r_script.R"]` will execute in the docker container just built. 
+
+Here is my screenshot:
+
+![Screenshot](screenshot.png)
